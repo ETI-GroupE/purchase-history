@@ -136,6 +136,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println("Error in connecting to database")
 			http.Error(w, err.Error(), http.StatusBadRequest)
+			w.WriteHeader(http.StatusBadRequest)
 		}
 		defer db.Close()
 
@@ -144,6 +145,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println("Error with getting data from database")
 			http.Error(w, err.Error(), http.StatusBadRequest)
+			w.WriteHeader(http.StatusBadRequest)
 
 		} else {
 			for result.Next() {
@@ -158,7 +160,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 				} else {
 					//Print out database items
 					w.WriteHeader(http.StatusOK)
-					fmt.Println(purchasehistory.Order_id, purchasehistory.User_id, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.Product_id, purchasehistory.Status, purchasehistory.Location)
+					fmt.Println(purchasehistory.Order_id, products.Product_Name, purchasehistory.Final_price, purchasehistory.Quantity, products.Product_Description, purchasehistory.Status, purchasehistory.Location)
 				}
 			}
 		}

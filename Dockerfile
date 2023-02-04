@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go application
-RUN go run main.go . 
+RUN go build main.go 
 
 # Use a new image based on the Alpine Linux image
 FROM alpine:latest
