@@ -55,7 +55,7 @@ func main() {
 	router.HandleFunc("/api/v1/updatehistory", updatePurchaseHistory).Methods("POST")
 	router.HandleFunc("/api/v1/viewAllBusinessPurchase", viewAllBusinessPurchase).Methods("GET")
 	fmt.Println("Listening at port 5000")
-	log.Fatal(http.ListenAndServe(": 5000", router))
+	log.Fatal(http.ListenAndServe(":5000", router))
 }
 
 func getAllPurchase(w http.ResponseWriter, r *http.Request) {
