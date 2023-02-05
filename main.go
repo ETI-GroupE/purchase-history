@@ -330,11 +330,14 @@ func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 					w.WriteHeader(http.StatusAccepted)
 					fmt.Fprintf(w, string(output))
 					fmt.Println(purchasehistory.Order_id, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.Status, purchasehistory.Location)
+					// LATEST COMPOSITE KEY CODE
 					// m := make(map[CompositeKey]product)
 					// m[CompositeKey{ProductID: productInfo.Product_id, OrderID: purchasehistory.Order_id}] = product{Product_Name: productInfo.Product_Name, Product_Description: productInfo.Product_Description}
 					// for key, value := range m {
 					// 	fmt.Fprintf(w, "Product ID: %d Order ID: %d Quantity: %s Price: %s", key.ProductID, key.OrderID, value.Product_Name, value.Product_Description)
 					// }
+
+					// OLD COMPOSITE KEY CODE NO USE
 					// var orderProductMap = make(map[int]map[int]product)
 					// orderProductMap[purchasehistory.Order_id] = make(map[int]product)
 					// orderProductMap[purchasehistory.Order_id][purchasehistory.Product_id] = product{Product_Name: productInfo.Product_Name, Product_Description: productInfo.Product_Description}
