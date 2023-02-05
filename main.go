@@ -106,6 +106,9 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 				} else {
 					//Print out database items
 					w.WriteHeader(http.StatusOK)
+					output, _ := json.Marshal(purchasehistory)
+					w.WriteHeader(http.StatusAccepted)
+					fmt.Fprintf(w, string(output))
 					fmt.Println(purchasehistory.Order_id, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.Status, purchasehistory.Location)
 				}
 			}
