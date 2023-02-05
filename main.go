@@ -321,9 +321,9 @@ func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 					fmt.Fprintln(w, "No purchase history available")
 
 				} else {
-					var orderProductMap = make(map[int]map[int]OrderProducts)
-					orderProductMap[purchasehistory.Order_id] = make(map[int]OrderProducts)
-					orderProductMap[purchasehistory.Order_id][purchasehistory.Product_id] = OrderProducts{Product_Name: orderProduct.Product_Name, Product_Description: orderProduct.Product_Description}
+					var orderProductMap = make(map[int]map[int]product)
+					orderProductMap[purchasehistory.Order_id] = make(map[int]product)
+					orderProductMap[purchasehistory.Order_id][purchasehistory.Product_id] = product{Product_Name: productInfo.Product_Name, Product_Description: productInfo.Product_Description}
 					fmt.Println(orderProductMap)
 					fmt.Fprintln(w, "Status OK")
 					output, _ := json.Marshal(orderProductMap)
