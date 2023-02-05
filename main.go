@@ -252,7 +252,7 @@ func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		//=====================================
 		//Calling business endpoint
-		response, err := http.Get("https://auth-ksbujg5hza-as.a.run.app/api/v1/verify/business")
+		response, err := http.Get("https://auth-ksbujg5hza-as.a.run.app/api/v1/verify/customer")
 		if err != nil {
 			fmt.Println("Error making the API call:", err)
 			return
