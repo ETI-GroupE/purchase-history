@@ -249,49 +249,48 @@ func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 	var purchasehistory History //B
 	var userInfo UserID         //DE
 
-	//=====================================
-	//Calling business endpoint
-	response, err := http.Get("https://auth-ksbujg5hza-as.a.run.app/api/v1/verify/business")
-	if err != nil {
-		fmt.Println("Error making the API call:", err)
-		return
-	}
-	defer response.Body.Close()
-
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		fmt.Println("Error reading the response body of User :", err)
-		return
-	}
-
-	err = json.Unmarshal(body, &userInfo)
-	if err != nil {
-		fmt.Println("Error unmarshaling the JSON data of User:", err)
-		return
-	}
-
-	//=====================================
-	//Calling product endpoint
-	response, err = http.Get("https://buyee-catalog-ksbujg5hza-as.a.run.app/api/v1")
-	if err != nil {
-		fmt.Println("Error making the API call:", err)
-		return
-	}
-	defer response.Body.Close()
-
-	body, err = ioutil.ReadAll(response.Body)
-	if err != nil {
-		fmt.Println("Error reading the response body of product :", err)
-		return
-	}
-
-	err = json.Unmarshal(body, &productInfo)
-	if err != nil {
-		fmt.Println("Error unmarshaling the JSON data of product:", err)
-		return
-	}
-
 	if r.Method == "GET" {
+		//=====================================
+		//Calling business endpoint
+		response, err := http.Get("https://auth-ksbujg5hza-as.a.run.app/api/v1/verify/business")
+		if err != nil {
+			fmt.Println("Error making the API call:", err)
+			return
+		}
+		defer response.Body.Close()
+
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			fmt.Println("Error reading the response body of User :", err)
+			return
+		}
+
+		err = json.Unmarshal(body, &userInfo)
+		if err != nil {
+			fmt.Println("Error unmarshaling the JSON data of User:", err)
+			return
+		}
+
+		//=====================================
+		//Calling product endpoint
+		response, err = http.Get("https://buyee-catalog-ksbujg5hza-as.a.run.app/api/v1")
+		if err != nil {
+			fmt.Println("Error making the API call:", err)
+			return
+		}
+		defer response.Body.Close()
+
+		body, err = ioutil.ReadAll(response.Body)
+		if err != nil {
+			fmt.Println("Error reading the response body of product :", err)
+			return
+		}
+
+		err = json.Unmarshal(body, &productInfo)
+		if err != nil {
+			fmt.Println("Error unmarshaling the JSON data of product:", err)
+			return
+		}
 
 		//Read
 		ExodiaTheForbidden := os.Getenv("S1020")
