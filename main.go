@@ -34,9 +34,9 @@ type shopping_cart_items struct {
 	Final_price float32 `json:"final_price"`
 }
 
-// type User struct {
-// 	User_id int `json:"user_id"`
-// }
+type UserID struct {
+	User_id int `json:"user_id"`
+}
 
 type Status struct {
 	Location string `json:"location"`
@@ -68,13 +68,31 @@ func main() {
 func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 	//var products product        //WK
 	var purchasehistory History //B
+	var user UserID
 	//var shoppingcart shopping_cart_items //LC
 	//var status Status                    //H
 
-	//querystringmap := r.URL.Query()
-	//userID := querystringmap.Get("UserID")
 	if r.Method == "GET" {
+		//=====================================
+		//Calling user endpoint
+		response, err := http.Get("https://auth-ksbujg5hza-as.a.run.app//api/v1/verify/customer")
+		if err != nil {
+			fmt.Println("Error making the API call:", err)
+			return
+		}
+		defer response.Body.Close()
 
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			fmt.Println("Error reading the response body of User :", err)
+			return
+		}
+
+		err = json.Unmarshal(body, &user)
+		if err != nil {
+			fmt.Println("Error unmarshaling the JSON data of User:", err)
+			return
+		}
 		//Calling of database
 		db, err := sql.Open("mysql", "root:password@tcp(34.124.200.112)/db")
 
@@ -87,7 +105,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 		defer db.Close()
 
 		//Checking for value in database
-		result, err := db.Query("select * from purchasehistory where user_id = 1")
+		result, err := db.Query("select * from purchasehistory where user_id = ?", user.User_id)
 		if err != nil {
 			fmt.Println("Error with getting data from database")
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -109,7 +127,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 					output, _ := json.Marshal(purchasehistory)
 					w.WriteHeader(http.StatusAccepted)
 					fmt.Fprintf(w, string(output))
-					//fmt.Println(purchasehistory.Order_id, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.Status, purchasehistory.Location)
+					fmt.Println(purchasehistory.Order_id, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.Status, purchasehistory.Location)
 				}
 			}
 		}
