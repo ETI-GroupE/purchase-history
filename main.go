@@ -50,12 +50,6 @@ type OrderProducts struct {
 
 func main() {
 
-	myVar := os.Getenv("db")
-	if myVar == "" {
-		myVar = "default value"
-	}
-	fmt.Println("MY_VAR:", myVar)
-
 	router := mux.NewRouter()
 	router.HandleFunc("/api/v1/allpurchase", getAllPurchase).Methods("GET")
 	router.HandleFunc("/api/v1/updatehistory", updatePurchaseHistory).Methods("POST")
@@ -73,6 +67,12 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 	//var status Status                    //H
 
 	if r.Method == "GET" {
+		myVar := os.Getenv("db")
+		if myVar == "" {
+			myVar = "default value"
+		}
+		fmt.Println("MY_VAR:", myVar)
+		fmt.Fprintf(w, string(myVar))
 		//=====================================
 		//Calling user endpoint
 		response, err := http.Get("https://auth-ksbujg5hza-as.a.run.app//api/v1/verify/customer")
@@ -120,6 +120,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 					fmt.Printf("No purchase history available")
 					http.Error(w, err.Error(), http.StatusBadRequest)
 					w.WriteHeader(http.StatusBadRequest)
+					fmt.Fprintf(w, ("Invalid table in database"))
 
 				} else {
 					//Print out database items
