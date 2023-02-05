@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -50,6 +51,13 @@ type OrderProducts struct {
 }
 
 func main() {
+
+	myVar := os.Getenv("db")
+	if myVar == "" {
+		myVar = "default value"
+	}
+	fmt.Println("MY_VAR:", myVar)
+
 	router := mux.NewRouter()
 	router.HandleFunc("/api/v1/allpurchase", getAllPurchase).Methods("GET")
 	router.HandleFunc("/api/v1/updatehistory", updatePurchaseHistory).Methods("POST")
@@ -70,7 +78,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 		user_id := querystringmap.Get("User_id")
 
 		//Calling of database
-		db, err := sql.Open("mysql", "root:Pa$$w0rd@tcp(127.0.0.1:3306)/db")
+		db, err := sql.Open("mysql", "root:password@tcp(34.124.200.112)/db")
 
 		// Error handling
 		if err != nil {
