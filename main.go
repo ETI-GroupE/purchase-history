@@ -48,6 +48,11 @@ type OrderProducts struct {
 	Product_Description string `json:"product_description"`
 }
 
+type CompositeKey struct {
+	ProductID int `json:"product_id"`
+	OrderID   int `json:"order_id"`
+}
+
 func main() {
 
 	router := mux.NewRouter()
@@ -321,21 +326,26 @@ func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 					fmt.Fprintln(w, "No purchase history available")
 
 				} else {
-					var orderProductMap = make(map[int]map[int]product)
-					orderProductMap[purchasehistory.Order_id] = make(map[int]product)
-					orderProductMap[purchasehistory.Order_id][purchasehistory.Product_id] = product{Product_Name: productInfo.Product_Name, Product_Description: productInfo.Product_Description}
-					fmt.Println(orderProductMap)
-					fmt.Fprintln(w, "Status OK")
-					output, err := json.Marshal(orderProductMap)
-					if err != nil {
-						http.Error(w, err.Error(), http.StatusInternalServerError)
-						return
+					m := make(map[CompositeKey]product)
+					m[CompositeKey{ProductID: productInfo.Product_id, OrderID: purchasehistory.Order_id}] = product{Product_Name: productInfo.Product_Name, Product_Description: productInfo.Product_Description}
+					for key, value := range m {
+						fmt.Fprintf(w, "Product ID: %d Order ID: %d Quantity: %s Price: %s", key.ProductID, key.OrderID, value.Product_Name, value.Product_Description)
 					}
-					w.Header().Set("Content-Type", "application/json")
-					w.Write(output)
+					// var orderProductMap = make(map[int]map[int]product)
+					// orderProductMap[purchasehistory.Order_id] = make(map[int]product)
+					// orderProductMap[purchasehistory.Order_id][purchasehistory.Product_id] = product{Product_Name: productInfo.Product_Name, Product_Description: productInfo.Product_Description}
+					// fmt.Println(orderProductMap)
+					// fmt.Fprintln(w, "Status OK")
+					// output, err := json.Marshal(orderProductMap)
+					// if err != nil {
+					// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+					// 	return
+					// }
+					// w.Header().Set("Content-Type", "application/json")
+					// w.Write(output)
 					//w.WriteHeader(http.StatusAccepted)
-					//fmt.Fprintf(w, string(output))
-				}
+				} //fmt.Fprintf(w, string(output))
+
 			}
 
 		}
