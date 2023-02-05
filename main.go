@@ -240,7 +240,7 @@ func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
 func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 	//var orderProductMap = make(map[int][]int)
 	var productInfo product //WK
-	var orderProduct OrderProducts
+
 	var purchasehistory History //B
 	var userInfo UserID         //DE
 
