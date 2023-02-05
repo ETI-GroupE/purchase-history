@@ -56,81 +56,21 @@ func main() {
 	router.HandleFunc("/api/v1/viewAllBusinessPurchase", viewAllBusinessPurchase).Methods("GET")
 	fmt.Println("Listening at port 5000")
 	log.Fatal(http.ListenAndServe(":5000", router))
+
 }
 
 func getAllPurchase(w http.ResponseWriter, r *http.Request) {
-	var products product                 //WK
-	var purchasehistory History          //B
-	var shoppingcart shopping_cart_items //LC
-	var status Status                    //H
+	//var products product        //WK
+	var purchasehistory History //B
+	//var shoppingcart shopping_cart_items //LC
+	//var status Status                    //H
 
 	if r.Method == "GET" {
-
-		//=====================================
-		//Calling Products endpoint
-		response, err := http.Get("https://localhost:5000/api/v1/products")
-		if err != nil {
-			fmt.Println("Error making the API call:", err)
-			return
-		}
-		defer response.Body.Close()
-
-		body, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			fmt.Println("Error reading the response body of Products :", err)
-			return
-		}
-
-		err = json.Unmarshal(body, &products)
-		if err != nil {
-			fmt.Println("Error unmarshaling the JSON data of Products:", err)
-			return
-		}
-
-		//=====================================
-		//Calling Shopping cart endpoint
-		response, err = http.Get("https://localhost:5000/api/v1/shopping_cart_items")
-		if err != nil {
-			fmt.Println("Error making the API call:", err)
-			return
-		}
-		defer response.Body.Close()
-
-		body, err = ioutil.ReadAll(response.Body)
-		if err != nil {
-			fmt.Println("Error reading the response body of shopping cart:", err)
-			return
-		}
-
-		err = json.Unmarshal(body, &shoppingcart)
-		if err != nil {
-			fmt.Println("Error unmarshaling the JSON data of shopping cart:", err)
-			return
-		}
-
-		//=====================================
-		//Calling location endpoint
-		response, err = http.Get("https://localhost:6327/discounts/{discount_id}/{shop_Cart_ID}")
-		if err != nil {
-			fmt.Println("Error making the API call:", err)
-			return
-		}
-		defer response.Body.Close()
-
-		body, err = ioutil.ReadAll(response.Body)
-		if err != nil {
-			fmt.Println("Error reading the response body of location:", err)
-			return
-		}
-
-		err = json.Unmarshal(body, &status)
-		if err != nil {
-			fmt.Println("Error unmarshaling the JSON data of location:", err)
-			return
-		}
+		querystringmap := r.URL.Query()
+		user_id := querystringmap.Get("User_id")
 
 		//Calling of database
-		db, err := sql.Open("mysql", "root:Pa$$w0rd@tcp(127.0.0.1:3306)/eti_db")
+		db, err := sql.Open("mysql", "root:Pa$$w0rd@tcp(127.0.0.1:3306)/db")
 
 		// Error handling
 		if err != nil {
@@ -141,7 +81,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 		defer db.Close()
 
 		//Checking for value in database
-		result, err := db.Query("select * from purchasehistory where user_id = ?", purchasehistory.User_id)
+		result, err := db.Query("select * from purchasehistory where user_id = ?", user_id)
 		if err != nil {
 			fmt.Println("Error with getting data from database")
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -160,7 +100,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 				} else {
 					//Print out database items
 					w.WriteHeader(http.StatusOK)
-					fmt.Println(purchasehistory.Order_id, products.Product_Name, purchasehistory.Final_price, purchasehistory.Quantity, products.Product_Description, purchasehistory.Status, purchasehistory.Location)
+					fmt.Println(purchasehistory.Order_id, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.Status, purchasehistory.Location)
 				}
 			}
 		}
@@ -174,69 +114,6 @@ func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
 	var status Status                    //H
 
 	if r.Method == "POST" {
-
-		//=====================================
-		//Calling Products endpoint
-		response, err := http.Get("https://localhost:5000/api/v1/products")
-		if err != nil {
-			fmt.Println("Error making the API call:", err)
-			return
-		}
-		defer response.Body.Close()
-
-		body, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			fmt.Println("Error reading the response body of Products :", err)
-			return
-		}
-
-		err = json.Unmarshal(body, &products)
-		if err != nil {
-			fmt.Println("Error unmarshaling the JSON data of Products:", err)
-			return
-		}
-
-		//=====================================
-		//Calling Shopping cart endpoint
-		response, err = http.Get("https://localhost:5000/api/v1/shopping_cart_items")
-		if err != nil {
-			fmt.Println("Error making the API call:", err)
-			return
-		}
-		defer response.Body.Close()
-
-		body, err = ioutil.ReadAll(response.Body)
-		if err != nil {
-			fmt.Println("Error reading the response body of shopping cart:", err)
-			return
-		}
-
-		err = json.Unmarshal(body, &shoppingcart)
-		if err != nil {
-			fmt.Println("Error unmarshaling the JSON data of shopping cart:", err)
-			return
-		}
-
-		//=====================================
-		//Calling location endpoint
-		response, err = http.Get("https://localhost:6327/discounts/{discount_id}/{shop_Cart_ID}")
-		if err != nil {
-			fmt.Println("Error making the API call:", err)
-			return
-		}
-		defer response.Body.Close()
-
-		body, err = ioutil.ReadAll(response.Body)
-		if err != nil {
-			fmt.Println("Error reading the response body of location:", err)
-			return
-		}
-
-		err = json.Unmarshal(body, &status)
-		if err != nil {
-			fmt.Println("Error unmarshaling the JSON data of location:", err)
-			return
-		}
 
 		//Testing only
 		//fmt.Printf("post hello")
@@ -252,7 +129,7 @@ func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
 		defer db.Close()
 
 		//Inserting values into database
-		_, err = db.Exec("insert into purchasehistory (user_id, final_price,quantity,product_id,status,location) values(?,?,?,?,?,?)",
+		_, err = db.Exec("insert into purchasehistory (user_id, final_price,quantity,produxct_id,status,location) values(?,?,?,?,?,?)",
 			purchasehistory.User_id, shoppingcart.Final_price, shoppingcart.Quantity, products.Product_id, status.Status, status.Location)
 		if err != nil {
 			fmt.Println("Error with sending data to database")
