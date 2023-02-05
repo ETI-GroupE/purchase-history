@@ -106,7 +106,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 		defer db.Close()
 
 		//Checking for value in database
-		result, err := db.Query("select * from purchasehistory where user_id = 1")
+		result, err := db.Query("select * from purchasehistory where user_id = ?", userInfo.User_id)
 		if err != nil {
 			fmt.Println("Error with getting data from database")
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -326,9 +326,15 @@ func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 					orderProductMap[purchasehistory.Order_id][purchasehistory.Product_id] = product{Product_Name: productInfo.Product_Name, Product_Description: productInfo.Product_Description}
 					fmt.Println(orderProductMap)
 					fmt.Fprintln(w, "Status OK")
-					output, _ := json.Marshal(orderProductMap)
-					w.WriteHeader(http.StatusAccepted)
-					fmt.Fprintf(w, string(output))
+					output, err := json.Marshal(orderProductMap)
+					if err != nil {
+						http.Error(w, err.Error(), http.StatusInternalServerError)
+						return
+					}
+					w.Header().Set("Content-Type", "application/json")
+					w.Write(output)
+					//w.WriteHeader(http.StatusAccepted)
+					//fmt.Fprintf(w, string(output))
 				}
 			}
 
