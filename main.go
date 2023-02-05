@@ -71,8 +71,8 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 	//var shoppingcart shopping_cart_items //LC
 	//var status Status                    //H
 
-	querystringmap := r.URL.Query()
-	userID := querystringmap.Get("UserID")
+	//querystringmap := r.URL.Query()
+	//userID := querystringmap.Get("UserID")
 	if r.Method == "GET" {
 
 		//Calling of database
@@ -87,7 +87,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 		defer db.Close()
 
 		//Checking for value in database
-		result, err := db.Query("select * from purchasehistory where user_id = ?", userID)
+		result, err := db.Query("select * from purchasehistory")
 		if err != nil {
 			fmt.Println("Error with getting data from database")
 			http.Error(w, err.Error(), http.StatusBadRequest)
