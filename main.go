@@ -14,10 +14,8 @@ import (
 )
 
 type History struct {
-	//Item_id     int     `json:"item_id"`
 	Order_id    int     `json:"order_id"`
 	User_id     int     `json:"user_id"`
-	Discount_id int     `json:"discount_id"`
 	Quantity    int     `json:"quantity"`
 	Final_price float64 `json:"final_price"`
 	Product_id  int     `json:"product_id"`
@@ -73,6 +71,8 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 	//var shoppingcart shopping_cart_items //LC
 	//var status Status                    //H
 
+	querystringmap := r.URL.Query()
+	userID := querystringmap.Get("UserID")
 	if r.Method == "GET" {
 
 		//Calling of database
@@ -87,7 +87,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 		defer db.Close()
 
 		//Checking for value in database
-		result, err := db.Query("select * from purchasehistory where user_id = 3")
+		result, err := db.Query("select * from purchasehistory where user_id = ?", userID)
 		if err != nil {
 			fmt.Println("Error with getting data from database")
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -109,7 +109,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 					output, _ := json.Marshal(purchasehistory)
 					w.WriteHeader(http.StatusAccepted)
 					fmt.Fprintf(w, string(output))
-					fmt.Println(purchasehistory.Order_id, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.Status, purchasehistory.Location)
+					//fmt.Println(purchasehistory.Order_id, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.Status, purchasehistory.Location)
 				}
 			}
 		}
@@ -215,17 +215,9 @@ func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 					orderProductMap[purchasehistory.Order_id][purchasehistory.Product_id] = OrderProducts{Product_Name: orderProduct.Product_Name, Product_Description: orderProduct.Product_Description}
 					fmt.Println(orderProductMap)
 					fmt.Fprintln(w, "Status OK")
-					// orderProductMap[purchasehistory.Order_id] = append(orderProductMap[purchasehistory.Order_id], purchasehistory.Product_id)
-					// var orderProductArray []OrderProducts
-					// for order_id, product_id := range orderProductMap {
-					// 	orderProductArray = append(orderProductArray, OrderProducts{Order_id: order_id, Product_id: product_id})
-					// 	fmt.Println(orderProductArray)
-					// }
-					// //Print out database items
-					// //w.WriteHeader(http.StatusOK)
-
-					//To display out something
-					//fmt.Println(purchasehistory.Order_id, purchasehistory.User_id, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.Product_id, purchasehistory.Status, purchasehistory.Location)
+					output, _ := json.Marshal(purchasehistory)
+					w.WriteHeader(http.StatusAccepted)
+					fmt.Fprintf(w, string(output))
 				}
 			}
 
