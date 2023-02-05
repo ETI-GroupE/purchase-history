@@ -67,12 +67,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 	//var status Status                    //H
 
 	if r.Method == "GET" {
-		myVar := os.Getenv("db")
-		if myVar == "" {
-			myVar = "default value"
-		}
-		fmt.Println("MY_VAR:", myVar)
-		fmt.Fprintf(w, string(myVar))
+
 		//=====================================
 		//Calling user endpoint
 		response, err := http.Get("https://auth-ksbujg5hza-as.a.run.app//api/v1/verify/customer")
@@ -94,7 +89,11 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		//Calling of database
-		db, err := sql.Open("mysql", "root:password@tcp(34.124.200.112)/db")
+		ExodiaTheForbidden := os.Getenv("S1020")
+		BodyOfExodia := os.Getenv("S8584")
+		ArmsOfExodia := os.Getenv("S1090")
+		LegsOfExodia := os.Getenv("S1019")
+		db, err := sql.Open("mysql", ExodiaTheForbidden+":"+BodyOfExodia+"@tcp("+ArmsOfExodia+")/"+LegsOfExodia)
 
 		// Error handling
 		if err != nil {
