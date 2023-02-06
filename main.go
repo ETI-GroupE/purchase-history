@@ -119,6 +119,53 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusAccepted)
 			fmt.Fprintf(w, string(output))
 		}
+	} else {
+
+		//Read
+		ExodiaTheForbidden := os.Getenv("S1020")
+		BodyOfExodia := os.Getenv("S8584")
+		ArmsOfExodia := os.Getenv("S1090")
+		LegsOfExodia := os.Getenv("S1019")
+		//Calling of database
+		db, err := sql.Open("mysql", ExodiaTheForbidden+":"+BodyOfExodia+"@tcp("+ArmsOfExodia+")/"+LegsOfExodia)
+
+		// Error handling
+		if err != nil {
+			fmt.Println("Error in connecting to database")
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			w.WriteHeader(http.StatusBadRequest)
+		}
+		defer db.Close()
+
+		var purchasehi []History
+		//Checking for value in database
+		result, err := db.Query("select * from purchasehistory")
+		if err != nil {
+			fmt.Println("Error with getting data from database")
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			w.WriteHeader(http.StatusBadRequest)
+
+		} else {
+			for result.Next() {
+
+				var purchasehistory History
+				//Checking for database items
+				err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.Status, &purchasehistory.Location)
+				if err != nil {
+					fmt.Printf("No purchase history available")
+					http.Error(w, err.Error(), http.StatusBadRequest)
+					w.WriteHeader(http.StatusBadRequest)
+					fmt.Fprintf(w, ("Invalid table in database"))
+
+				} else {
+					//Print out database items
+					purchasehi = append(purchasehi, purchasehistory)
+				}
+			}
+			output, _ := json.Marshal(purchasehi)
+			w.WriteHeader(http.StatusAccepted)
+			fmt.Fprintf(w, string(output))
+		}
 	}
 }
 
@@ -127,12 +174,15 @@ func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
 	var purchasehistory History          //B
 	var shoppingcart shopping_cart_items //LC
 	//var statusInfo Status                    //H
-	var userInfo UserID //DE
+	//var userInfo UserID //DE
 
 	if r.Method == "POST" {
+		querystringmap := r.URL.Query()
+		userID := querystringmap.Get("UserID")
+
 		//=====================================
-		//Calling user endpoint
-		response, err := http.Get("https://auth-ksbujg5hza-as.a.run.app/api/v1/verify/customer")
+		//Calling shopping cart endpoint
+		response, err := http.Get("https://buyee-shoppingcart-gukqthlh4a-as.a.run.app/api/v1/shoppingCart")
 		if err != nil {
 			fmt.Println("Error making the API call:", err)
 			return
@@ -140,27 +190,6 @@ func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
 		defer response.Body.Close()
 
 		body, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			fmt.Println("Error reading the response body of User :", err)
-			return
-		}
-
-		err = json.Unmarshal(body, &userInfo)
-		if err != nil {
-			fmt.Println("Error unmarshaling the JSON data of User:", err)
-			return
-		}
-
-		//=====================================
-		//Calling shopping cart endpoint
-		response, err = http.Get("")
-		if err != nil {
-			fmt.Println("Error making the API call:", err)
-			return
-		}
-		defer response.Body.Close()
-
-		body, err = ioutil.ReadAll(response.Body)
 		if err != nil {
 			fmt.Println("Error reading the response body of Shopping cart :", err)
 			return
@@ -210,7 +239,7 @@ func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
 
 		//Inserting values into database
 		_, err = db.Exec("insert into purchasehistory (user_id, final_price,quantity,product_id,status,location) values(?,?,?,?,?,?)",
-			userInfo.User_id, purchasehistory.Final_price, shoppingcart.Quantity, productInfo.Product_id, purchasehistory.Status, purchasehistory.Location)
+			userID, purchasehistory.Final_price, shoppingcart.Quantity, productInfo.Product_id, purchasehistory.Status, purchasehistory.Location)
 		if err != nil {
 			fmt.Println("Error with sending data to database")
 			panic(err.Error())
