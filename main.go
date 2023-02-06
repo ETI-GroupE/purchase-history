@@ -264,7 +264,7 @@ func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
 
 		//Inserting values into database
 		_, err = db.Exec("insert into purchasehistory (user_id, final_price,quantity,product_id,status,location) values(?,?,?,?,?,?)",
-			userID, purchasehistory.Final_price, shoppingcart.Quantity, productInfo.Product_id, DeliveryInfo.shipStatus, DeliveryInfo.shipLocation)
+			userID, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.Product_id, purchasehistory.shipStatus, purchasehistory.shipLocation)
 		if err != nil {
 			fmt.Println("Error with sending data to database")
 			panic(err.Error())
