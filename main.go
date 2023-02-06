@@ -19,8 +19,8 @@ type History struct {
 	Quantity     int     `json:"quantity"`
 	Final_price  float64 `json:"final_price"`
 	Product_id   int     `json:"product_id"`
-	shipStatus   string  `json:"status"`
-	shipLocation string  `json:"location"`
+	ShipStatus   string  `json:"shipstatus"`
+	ShipLocation string  `json:"shiplocation"`
 }
 
 type product struct {
@@ -38,8 +38,8 @@ type UserID struct {
 }
 
 type Delivery struct {
-	shipLocation string `json:"location"`
-	shipStatus   string `json:"status"`
+	ShipLocation string `json:"shiplocation"`
+	ShipStatus   string `json:"shipstatus"`
 }
 
 type OrderProducts struct {
@@ -104,7 +104,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 
 					var purchasehistory History
 					//Checking for database items
-					err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.shipStatus, &purchasehistory.shipLocation)
+					err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.ShipStatus, &purchasehistory.ShipLocation)
 					if err != nil {
 						fmt.Printf("No purchase history available")
 						http.Error(w, err.Error(), http.StatusBadRequest)
@@ -152,7 +152,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 
 					var purchasehistory History
 					//Checking for database items
-					err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.shipStatus, &purchasehistory.shipLocation)
+					err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.ShipStatus, &purchasehistory.ShipLocation)
 					if err != nil {
 						fmt.Printf("No purchase history available")
 						http.Error(w, err.Error(), http.StatusBadRequest)
@@ -174,107 +174,41 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 }
 
 func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
-	var productInfo product              //WK
-	var purchasehistory History          //B
-	var shoppingcart shopping_cart_items //LC
-	var DeliveryInfo Delivery            //H
+	//var productInfo product              //WK
+
+	//var shoppingcart shopping_cart_items //LC
+	//var DeliveryInfo Delivery            //H
 	//var userInfo UserID //DE
 
 	if r.Method == "POST" {
-		querystringmap := r.URL.Query()
-		userID := querystringmap.Get("UserID")
+		var purchasehistory History //B
+		if body, err := ioutil.ReadAll(r.Body); err == nil {
+			if err := json.Unmarshal(body, &purchasehistory); err == nil {
+				//Write
+				ExodiaTheForbidden := os.Getenv("S1020")
+				BodyOfExodia := os.Getenv("S8584")
+				ArmsOfExodia := os.Getenv("S1029")
+				LegsOfExodia := os.Getenv("S1019")
+				//Calling of database
+				db, err := sql.Open("mysql", ExodiaTheForbidden+":"+BodyOfExodia+"@tcp("+ArmsOfExodia+")/"+LegsOfExodia)
+				// handle error upon failure
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusBadRequest)
+				}
+				defer db.Close()
 
-		//=====================================
-		//Calling shopping cart endpoint
-		response, err := http.Get("https://buyee-shoppingcart-gukqthlh4a-as.a.run.app/api/v1/shoppingCart")
-		if err != nil {
-			fmt.Println("Error making the API call:", err)
-			return
-		}
-		defer response.Body.Close()
-
-		body, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			fmt.Println("Error reading the response body of Shopping cart :", err)
-			return
-		}
-
-		err = json.Unmarshal(body, &shoppingcart)
-		if err != nil {
-			fmt.Println("Error unmarshaling the JSON data of Shopping cart:", err)
-			return
-		}
-
-		//=====================================
-		//Calling product endpoint
-		response, err = http.Get(" https://buyee-delivery-qqglc24h2a-as.a.run.app/api/v1")
-		if err != nil {
-			fmt.Println("Error making the API call:", err)
-			return
-		}
-		defer response.Body.Close()
-
-		body, err = ioutil.ReadAll(response.Body)
-		if err != nil {
-			fmt.Println("Error reading the response body of product :", err)
-			return
-		}
-
-		err = json.Unmarshal(body, &productInfo)
-		if err != nil {
-			fmt.Println("Error unmarshaling the JSON data of product:", err)
-			return
-		}
-
-		//=====================================
-		//Calling Delivery endpoint
-		response, err = http.Get("https://buyee-delivery-qqglc24h2a-as.a.run.app/api/v1/status")
-		if err != nil {
-			fmt.Println("Error making the API call:", err)
-			return
-		}
-		defer response.Body.Close()
-
-		body, err = ioutil.ReadAll(response.Body)
-		if err != nil {
-			fmt.Println("Error reading the response body of Delivery :", err)
-			return
-		}
-
-		err = json.Unmarshal(body, &DeliveryInfo)
-		if err != nil {
-			fmt.Println("Error unmarshaling the JSON data of Delivery:", err)
-			return
-		}
-
-		//Write
-		ExodiaTheForbidden := os.Getenv("S1020")
-		BodyOfExodia := os.Getenv("S8584")
-		ArmsOfExodia := os.Getenv("S1029")
-		LegsOfExodia := os.Getenv("S1019")
-		//Calling of database
-		db, err := sql.Open("mysql", ExodiaTheForbidden+":"+BodyOfExodia+"@tcp("+ArmsOfExodia+")/"+LegsOfExodia)
-
-		// Error handling
-		if err != nil {
-			fmt.Println("Error in connecting to database")
-			http.Error(w, err.Error(), http.StatusBadRequest)
-		}
-		defer db.Close()
-
-		//Inserting values into database
-		_, err = db.Exec("insert into purchasehistory (user_id, final_price,quantity,product_id,shipstatus,shiplocation) values(?,?,?,?,?,?)",
-			userID, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.Product_id, purchasehistory.shipStatus, purchasehistory.shipLocation)
-		if err != nil {
-			fmt.Println("Error with sending data to database")
-			panic(err.Error())
-
-		} else {
-			// To notify of new item to purchase history
-			fmt.Println("====================")
-			fmt.Println("New purchase history added")
+				//inserting values into passenger table
+				_, err = db.Exec("insert into purchasehistory (user_id, final_price, quantity, product_id, shipstatus,shiplocation) values(?,?,?,?,?,?)",
+					purchasehistory.User_id, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.Product_id, purchasehistory.ShipStatus, purchasehistory.ShipLocation)
+				//Handling error of SQL statement
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusBadRequest)
+				}
+				w.WriteHeader(http.StatusAccepted)
+			}
 		}
 	}
+
 }
 
 func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
@@ -360,7 +294,7 @@ func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 			for result.Next() {
 
 				//Checking for database items
-				err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.shipStatus, &purchasehistory.shipLocation)
+				err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.ShipStatus, &purchasehistory.ShipLocation)
 				if err != nil {
 					fmt.Printf("No purchase history available")
 					http.Error(w, err.Error(), http.StatusBadRequest)
@@ -372,7 +306,7 @@ func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 					output, _ := json.Marshal(purchasehistory)
 					w.WriteHeader(http.StatusAccepted)
 					fmt.Fprintf(w, string(output))
-					fmt.Println(purchasehistory.Order_id, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.shipStatus, purchasehistory.shipLocation)
+					fmt.Println(purchasehistory.Order_id, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.ShipStatus, purchasehistory.ShipLocation)
 					// LATEST COMPOSITE KEY CODE
 					// m := make(map[CompositeKey]product)
 					// m[CompositeKey{ProductID: productInfo.Product_id, OrderID: purchasehistory.Order_id}] = product{Product_Name: productInfo.Product_Name, Product_Description: productInfo.Product_Description}
