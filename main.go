@@ -360,7 +360,7 @@ func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 			for result.Next() {
 
 				//Checking for database items
-				err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.Status, &purchasehistory.Location)
+				err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.shipStatus, &purchasehistory.shipLocation)
 				if err != nil {
 					fmt.Printf("No purchase history available")
 					http.Error(w, err.Error(), http.StatusBadRequest)
@@ -372,7 +372,7 @@ func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 					output, _ := json.Marshal(purchasehistory)
 					w.WriteHeader(http.StatusAccepted)
 					fmt.Fprintf(w, string(output))
-					fmt.Println(purchasehistory.Order_id, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.Status, purchasehistory.Location)
+					fmt.Println(purchasehistory.Order_id, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.shipStatus, purchasehistory.shipLocation)
 					// LATEST COMPOSITE KEY CODE
 					// m := make(map[CompositeKey]product)
 					// m[CompositeKey{ProductID: productInfo.Product_id, OrderID: purchasehistory.Order_id}] = product{Product_Name: productInfo.Product_Name, Product_Description: productInfo.Product_Description}
