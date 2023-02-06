@@ -181,8 +181,8 @@ func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
 	//var userInfo UserID //DE
 
 	if r.Method == "POST" {
-		querystringmap := r.URL.Query()
-		userID := querystringmap.Get("UserID")
+		//querystringmap := r.URL.Query()
+		//userID := querystringmap.Get("UserID")
 
 		//=====================================
 		//Calling shopping cart endpoint
@@ -264,7 +264,7 @@ func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
 
 		//Inserting values into database
 		_, err = db.Exec("insert into purchasehistory (user_id, final_price,quantity,product_id,status,location) values(?,?,?,?,?,?)",
-			userID, purchasehistory.Final_price, shoppingcart.Quantity, productInfo.Product_id, DeliveryInfo.shipStatus, DeliveryInfo.shipLocation)
+			purchasehistory.User_id, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.Product_id, purchasehistory.Status, purchasehistory.Location)
 		if err != nil {
 			fmt.Println("Error with sending data to database")
 			panic(err.Error())
