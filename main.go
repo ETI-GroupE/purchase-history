@@ -74,98 +74,100 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 		querystringmap := r.URL.Query()
 		userID := querystringmap.Get("UserID")
 
-		//Read
-		ExodiaTheForbidden := os.Getenv("S1020")
-		BodyOfExodia := os.Getenv("S8584")
-		ArmsOfExodia := os.Getenv("S1090")
-		LegsOfExodia := os.Getenv("S1019")
-		//Calling of database
-		db, err := sql.Open("mysql", ExodiaTheForbidden+":"+BodyOfExodia+"@tcp("+ArmsOfExodia+")/"+LegsOfExodia)
+		if userID != "" {
+			//Read
+			ExodiaTheForbidden := os.Getenv("S1020")
+			BodyOfExodia := os.Getenv("S8584")
+			ArmsOfExodia := os.Getenv("S1090")
+			LegsOfExodia := os.Getenv("S1019")
+			//Calling of database
+			db, err := sql.Open("mysql", ExodiaTheForbidden+":"+BodyOfExodia+"@tcp("+ArmsOfExodia+")/"+LegsOfExodia)
 
-		// Error handling
-		if err != nil {
-			fmt.Println("Error in connecting to database")
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			w.WriteHeader(http.StatusBadRequest)
-		}
-		defer db.Close()
-
-		var purchasehi []History
-		//Checking for value in database
-		result, err := db.Query("select * from purchasehistory where user_id = ?", userID)
-		if err != nil {
-			fmt.Println("Error with getting data from database")
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			w.WriteHeader(http.StatusBadRequest)
-
-		} else {
-			for result.Next() {
-
-				var purchasehistory History
-				//Checking for database items
-				err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.Status, &purchasehistory.Location)
-				if err != nil {
-					fmt.Printf("No purchase history available")
-					http.Error(w, err.Error(), http.StatusBadRequest)
-					w.WriteHeader(http.StatusBadRequest)
-					fmt.Fprintf(w, ("Invalid table in database"))
-
-				} else {
-					//Print out database items
-					purchasehi = append(purchasehi, purchasehistory)
-				}
+			// Error handling
+			if err != nil {
+				fmt.Println("Error in connecting to database")
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				w.WriteHeader(http.StatusBadRequest)
 			}
-			output, _ := json.Marshal(purchasehi)
-			w.WriteHeader(http.StatusAccepted)
-			fmt.Fprintf(w, string(output))
-		}
-	} else {
+			defer db.Close()
 
-		//Read
-		ExodiaTheForbidden := os.Getenv("S1020")
-		BodyOfExodia := os.Getenv("S8584")
-		ArmsOfExodia := os.Getenv("S1090")
-		LegsOfExodia := os.Getenv("S1019")
-		//Calling of database
-		db, err := sql.Open("mysql", ExodiaTheForbidden+":"+BodyOfExodia+"@tcp("+ArmsOfExodia+")/"+LegsOfExodia)
+			var purchasehi []History
+			//Checking for value in database
+			result, err := db.Query("select * from purchasehistory where user_id = ?", userID)
+			if err != nil {
+				fmt.Println("Error with getting data from database")
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				w.WriteHeader(http.StatusBadRequest)
 
-		// Error handling
-		if err != nil {
-			fmt.Println("Error in connecting to database")
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			w.WriteHeader(http.StatusBadRequest)
-		}
-		defer db.Close()
+			} else {
+				for result.Next() {
 
-		var purchasehi []History
-		//Checking for value in database
-		result, err := db.Query("select * from purchasehistory")
-		if err != nil {
-			fmt.Println("Error with getting data from database")
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			w.WriteHeader(http.StatusBadRequest)
+					var purchasehistory History
+					//Checking for database items
+					err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.Status, &purchasehistory.Location)
+					if err != nil {
+						fmt.Printf("No purchase history available")
+						http.Error(w, err.Error(), http.StatusBadRequest)
+						w.WriteHeader(http.StatusBadRequest)
+						fmt.Fprintf(w, ("Invalid table in database"))
 
-		} else {
-			for result.Next() {
-
-				var purchasehistory History
-				//Checking for database items
-				err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.Status, &purchasehistory.Location)
-				if err != nil {
-					fmt.Printf("No purchase history available")
-					http.Error(w, err.Error(), http.StatusBadRequest)
-					w.WriteHeader(http.StatusBadRequest)
-					fmt.Fprintf(w, ("Invalid table in database"))
-
-				} else {
-					//Print out database items
-					purchasehi = append(purchasehi, purchasehistory)
+					} else {
+						//Print out database items
+						purchasehi = append(purchasehi, purchasehistory)
+					}
 				}
+				output, _ := json.Marshal(purchasehi)
+				w.WriteHeader(http.StatusAccepted)
+				fmt.Fprintf(w, string(output))
 			}
-			output, _ := json.Marshal(purchasehi)
-			w.WriteHeader(http.StatusAccepted)
-			fmt.Fprintf(w, string(output))
+		} else {
+			//Read
+			ExodiaTheForbidden := os.Getenv("S1020")
+			BodyOfExodia := os.Getenv("S8584")
+			ArmsOfExodia := os.Getenv("S1090")
+			LegsOfExodia := os.Getenv("S1019")
+			//Calling of database
+			db, err := sql.Open("mysql", ExodiaTheForbidden+":"+BodyOfExodia+"@tcp("+ArmsOfExodia+")/"+LegsOfExodia)
+
+			// Error handling
+			if err != nil {
+				fmt.Println("Error in connecting to database")
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				w.WriteHeader(http.StatusBadRequest)
+			}
+			defer db.Close()
+
+			var purchasehi []History
+			//Checking for value in database
+			result, err := db.Query("select * from purchasehistory ")
+			if err != nil {
+				fmt.Println("Error with getting data from database")
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				w.WriteHeader(http.StatusBadRequest)
+
+			} else {
+				for result.Next() {
+
+					var purchasehistory History
+					//Checking for database items
+					err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.Status, &purchasehistory.Location)
+					if err != nil {
+						fmt.Printf("No purchase history available")
+						http.Error(w, err.Error(), http.StatusBadRequest)
+						w.WriteHeader(http.StatusBadRequest)
+						fmt.Fprintf(w, ("Invalid table in database"))
+
+					} else {
+						//Print out database items
+						purchasehi = append(purchasehi, purchasehistory)
+					}
+				}
+				output, _ := json.Marshal(purchasehi)
+				w.WriteHeader(http.StatusAccepted)
+				fmt.Fprintf(w, string(output))
+			}
 		}
+
 	}
 }
 
