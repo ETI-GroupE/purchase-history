@@ -14,13 +14,13 @@ import (
 )
 
 type History struct {
-	Order_id    int     `json:"order_id"`
-	User_id     int     `json:"user_id"`
-	Quantity    int     `json:"quantity"`
-	Final_price float64 `json:"final_price"`
-	Product_id  int     `json:"product_id"`
-	Status      string  `json:"status"`
-	Location    string  `json:"location"`
+	Order_id     int     `json:"order_id"`
+	User_id      int     `json:"user_id"`
+	Quantity     int     `json:"quantity"`
+	Final_price  float64 `json:"final_price"`
+	Product_id   int     `json:"product_id"`
+	shipStatus   string  `json:"status"`
+	shipLocation string  `json:"location"`
 }
 
 type product struct {
@@ -104,7 +104,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 
 					var purchasehistory History
 					//Checking for database items
-					err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.Status, &purchasehistory.Location)
+					err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.shipStatus, &purchasehistory.shipLocation)
 					if err != nil {
 						fmt.Printf("No purchase history available")
 						http.Error(w, err.Error(), http.StatusBadRequest)
@@ -152,7 +152,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 
 					var purchasehistory History
 					//Checking for database items
-					err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.Status, &purchasehistory.Location)
+					err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.shipStatus, &purchasehistory.shipLocation)
 					if err != nil {
 						fmt.Printf("No purchase history available")
 						http.Error(w, err.Error(), http.StatusBadRequest)
