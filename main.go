@@ -174,11 +174,6 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 }
 
 func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
-	//var productInfo product              //WK
-
-	//var shoppingcart shopping_cart_items //LC
-	//var DeliveryInfo Delivery            //H
-	//var userInfo UserID //DE
 
 	if r.Method == "POST" {
 		var purchasehistory History //B
