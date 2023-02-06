@@ -66,7 +66,7 @@ func main() {
 
 func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 	//var products product        //WK
-	var purchasehistory History //B
+	//var purchasehistory History //B
 	//var shoppingcart shopping_cart_items //LC
 	//var status Status                    //H
 
@@ -90,6 +90,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 		}
 		defer db.Close()
 
+		var purchasehi []History
 		//Checking for value in database
 		result, err := db.Query("select * from purchasehistory where user_id = ?", userID)
 		if err != nil {
@@ -100,6 +101,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 		} else {
 			for result.Next() {
 
+				var purchasehistory History
 				//Checking for database items
 				err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.Status, &purchasehistory.Location)
 				if err != nil {
@@ -110,13 +112,12 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 
 				} else {
 					//Print out database items
-					w.WriteHeader(http.StatusOK)
-					output, _ := json.Marshal(purchasehistory)
-					w.WriteHeader(http.StatusAccepted)
-					fmt.Fprintf(w, string(output))
-					fmt.Println(purchasehistory.Order_id, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.Status, purchasehistory.Location)
+					purchasehi = append(purchasehi, purchasehistory)
 				}
 			}
+			output, _ := json.Marshal(purchasehi)
+			w.WriteHeader(http.StatusAccepted)
+			fmt.Fprintf(w, string(output))
 		}
 	}
 }
