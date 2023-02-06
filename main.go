@@ -37,10 +37,9 @@ type UserID struct {
 	User_id int `json:"user_id"`
 }
 
-type Status struct {
-	Location    string  `json:"location"`
-	Status      string  `json:"status"`
-	Final_price float32 `json:"final_price"`
+type Delivery struct {
+	shipLocation string `json:"location"`
+	shipStatus   string `json:"status"`
 }
 
 type OrderProducts struct {
@@ -74,6 +73,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 		querystringmap := r.URL.Query()
 		userID := querystringmap.Get("UserID")
 
+		// Execute when userID in query string is given a value
 		if userID != "" {
 			//Read
 			ExodiaTheForbidden := os.Getenv("S1020")
@@ -120,6 +120,8 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusAccepted)
 				fmt.Fprintf(w, string(output))
 			}
+
+			// Execute when userID in query string is not given a value or not giving userID in query string
 		} else {
 			//Read
 			ExodiaTheForbidden := os.Getenv("S1020")
@@ -175,7 +177,7 @@ func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
 	var productInfo product              //WK
 	var purchasehistory History          //B
 	var shoppingcart shopping_cart_items //LC
-	//var statusInfo Status                    //H
+	var DeliveryInfo Delivery            //H
 	//var userInfo UserID //DE
 
 	if r.Method == "POST" {
@@ -205,7 +207,7 @@ func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
 
 		//=====================================
 		//Calling product endpoint
-		response, err = http.Get("https://buyee-catalog-ksbujg5hza-as.a.run.app/api/v1")
+		response, err = http.Get(" https://buyee-delivery-qqglc24h2a-as.a.run.app/api/v1")
 		if err != nil {
 			fmt.Println("Error making the API call:", err)
 			return
@@ -221,6 +223,27 @@ func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
 		err = json.Unmarshal(body, &productInfo)
 		if err != nil {
 			fmt.Println("Error unmarshaling the JSON data of product:", err)
+			return
+		}
+
+		//=====================================
+		//Calling Delivery endpoint
+		response, err = http.Get("https://buyee-delivery-qqglc24h2a-as.a.run.app/api/v1/status")
+		if err != nil {
+			fmt.Println("Error making the API call:", err)
+			return
+		}
+		defer response.Body.Close()
+
+		body, err = ioutil.ReadAll(response.Body)
+		if err != nil {
+			fmt.Println("Error reading the response body of Delivery :", err)
+			return
+		}
+
+		err = json.Unmarshal(body, &DeliveryInfo)
+		if err != nil {
+			fmt.Println("Error unmarshaling the JSON data of Delivery:", err)
 			return
 		}
 
@@ -241,7 +264,7 @@ func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
 
 		//Inserting values into database
 		_, err = db.Exec("insert into purchasehistory (user_id, final_price,quantity,product_id,status,location) values(?,?,?,?,?,?)",
-			userID, purchasehistory.Final_price, shoppingcart.Quantity, productInfo.Product_id, purchasehistory.Status, purchasehistory.Location)
+			userID, purchasehistory.Final_price, shoppingcart.Quantity, productInfo.Product_id, DeliveryInfo.shipStatus, DeliveryInfo.shipLocation)
 		if err != nil {
 			fmt.Println("Error with sending data to database")
 			panic(err.Error())
@@ -256,11 +279,19 @@ func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
 
 func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 	//var orderProductMap = make(map[int][]int)
-	var productInfo product //WK
-
+	var productInfo product     //WK
 	var purchasehistory History //B
 	var userInfo UserID         //DE
+	//https://buyee-delivery-qqglc24h2a-as.a.run.app //H Delivery
+	//https://buyee-discount-qqglc24h2a-as.a.run.app //H Discount
 
+	querystringmap := r.URL.Query()
+	productID := querystringmap.Get("ProductID")
+	if productID != "" {
+
+	} else {
+
+	}
 	if r.Method == "GET" {
 		//=====================================
 		//Calling business endpoint
@@ -320,7 +351,7 @@ func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 		defer db.Close()
 
 		//Checking for value in database
-		result, err := db.Query("select * from purchasehistory where product_id = ?", purchasehistory.Product_id)
+		result, err := db.Query("select * from purchasehistory where product_id = ?", productID)
 		if err != nil {
 			fmt.Println("Error with getting data from database")
 			http.Error(w, err.Error(), http.StatusBadRequest)
