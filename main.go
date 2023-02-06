@@ -67,32 +67,12 @@ func main() {
 func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 	//var products product        //WK
 	var purchasehistory History //B
-	var userInfo UserID         //DE
 	//var shoppingcart shopping_cart_items //LC
 	//var status Status                    //H
 
 	if r.Method == "GET" {
-
-		//=====================================
-		//Calling user endpoint
-		response, err := http.Get("https://auth-ksbujg5hza-as.a.run.app/api/v1/verify/customer")
-		if err != nil {
-			fmt.Println("Error making the API call:", err)
-			return
-		}
-		defer response.Body.Close()
-
-		body, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			fmt.Println("Error reading the response body of User :", err)
-			return
-		}
-
-		err = json.Unmarshal(body, &userInfo)
-		if err != nil {
-			fmt.Println("Error unmarshaling the JSON data of User:", err)
-			return
-		}
+		querystringmap := r.URL.Query()
+		userID := querystringmap.Get("UserID")
 
 		//Read
 		ExodiaTheForbidden := os.Getenv("S1020")
@@ -111,7 +91,7 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 		defer db.Close()
 
 		//Checking for value in database
-		result, err := db.Query("select * from purchasehistory where user_id = ?", userInfo.User_id)
+		result, err := db.Query("select * from purchasehistory where user_id = ?", userID)
 		if err != nil {
 			fmt.Println("Error with getting data from database")
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -308,7 +288,7 @@ func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 		defer db.Close()
 
 		//Checking for value in database
-		result, err := db.Query("select * from purchasehistory where product_id = 3")
+		result, err := db.Query("select * from purchasehistory where product_id = ?", purchasehistory.Product_id)
 		if err != nil {
 			fmt.Println("Error with getting data from database")
 			http.Error(w, err.Error(), http.StatusBadRequest)
