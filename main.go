@@ -208,125 +208,106 @@ func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
 
 func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 	//var orderProductMap = make(map[int][]int)
-	var productInfo product     //WK
-	var purchasehistory History //B
-	var userInfo UserID         //DE
+	//var productInfo product     //WK
+	//var userInfo UserID         //DE
 	//https://buyee-delivery-qqglc24h2a-as.a.run.app //H Delivery
 	//https://buyee-discount-qqglc24h2a-as.a.run.app //H Discount
 
 	querystringmap := r.URL.Query()
 	productID := querystringmap.Get("ProductID")
-	if productID != "" {
-
-	} else {
-
-	}
 	if r.Method == "GET" {
-		//=====================================
-		//Calling business endpoint
-		response, err := http.Get("https://auth-ksbujg5hza-as.a.run.app/api/v1/verify/customer")
-		if err != nil {
-			fmt.Println("Error making the API call:", err)
-			return
-		}
-		defer response.Body.Close()
+		if productID != "" {
+			//Read
+			ExodiaTheForbidden := os.Getenv("S1020")
+			BodyOfExodia := os.Getenv("S8584")
+			ArmsOfExodia := os.Getenv("S1090")
+			LegsOfExodia := os.Getenv("S1019")
+			///Calling of database
+			db, err := sql.Open("mysql", ExodiaTheForbidden+":"+BodyOfExodia+"@tcp("+ArmsOfExodia+")/"+LegsOfExodia)
 
-		body, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			fmt.Println("Error reading the response body of User :", err)
-			return
-		}
+			// Error handling
+			if err != nil {
+				fmt.Println("Error in connecting to database")
+				http.Error(w, err.Error(), http.StatusBadRequest)
+			}
+			defer db.Close()
 
-		err = json.Unmarshal(body, &userInfo)
-		if err != nil {
-			fmt.Println("Error unmarshaling the JSON data of User:", err)
-			return
-		}
+			var purchasehi []History
+			//Checking for value in database
+			result, err := db.Query("select * from purchasehistory where product_id = ?", productID)
+			if err != nil {
+				fmt.Println("Error with getting data from database")
+				http.Error(w, err.Error(), http.StatusBadRequest)
 
-		//=====================================
-		//Calling product endpoint
-		response, err = http.Get("https://buyee-catalog-ksbujg5hza-as.a.run.app/api/v1")
-		if err != nil {
-			fmt.Println("Error making the API call:", err)
-			return
-		}
-		defer response.Body.Close()
+			} else {
+				for result.Next() {
 
-		body, err = ioutil.ReadAll(response.Body)
-		if err != nil {
-			fmt.Println("Error reading the response body of product :", err)
-			return
-		}
+					var purchasehistory History
+					//Checking for database items
+					err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.ShipStatus, &purchasehistory.ShipLocation)
+					if err != nil {
+						fmt.Printf("No purchase history available")
+						http.Error(w, err.Error(), http.StatusBadRequest)
+						w.WriteHeader(http.StatusBadRequest)
+						fmt.Fprintf(w, ("Invalid table in database"))
 
-		err = json.Unmarshal(body, &productInfo)
-		if err != nil {
-			fmt.Println("Error unmarshaling the JSON data of product:", err)
-			return
-		}
+					} else {
+						//Print out database items
+						purchasehi = append(purchasehi, purchasehistory)
 
-		//Read
-		ExodiaTheForbidden := os.Getenv("S1020")
-		BodyOfExodia := os.Getenv("S8584")
-		ArmsOfExodia := os.Getenv("S1090")
-		LegsOfExodia := os.Getenv("S1019")
-		///Calling of database
-		db, err := sql.Open("mysql", ExodiaTheForbidden+":"+BodyOfExodia+"@tcp("+ArmsOfExodia+")/"+LegsOfExodia)
-
-		// Error handling
-		if err != nil {
-			fmt.Println("Error in connecting to database")
-			http.Error(w, err.Error(), http.StatusBadRequest)
-		}
-		defer db.Close()
-
-		//Checking for value in database
-		result, err := db.Query("select * from purchasehistory where product_id = ?", productID)
-		if err != nil {
-			fmt.Println("Error with getting data from database")
-			http.Error(w, err.Error(), http.StatusBadRequest)
-
-		} else {
-			for result.Next() {
-
-				//Checking for database items
-				err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.ShipStatus, &purchasehistory.ShipLocation)
-				if err != nil {
-					fmt.Printf("No purchase history available")
-					http.Error(w, err.Error(), http.StatusBadRequest)
-					//w.WriteHeader(http.StatusBadRequest)
-					fmt.Fprintln(w, "No purchase history available")
-
-				} else {
-					w.WriteHeader(http.StatusOK)
-					output, _ := json.Marshal(purchasehistory)
+					}
+					output, _ := json.Marshal(purchasehi)
 					w.WriteHeader(http.StatusAccepted)
 					fmt.Fprintf(w, string(output))
-					fmt.Println(purchasehistory.Order_id, purchasehistory.Final_price, purchasehistory.Quantity, purchasehistory.ShipStatus, purchasehistory.ShipLocation)
-					// LATEST COMPOSITE KEY CODE
-					// m := make(map[CompositeKey]product)
-					// m[CompositeKey{ProductID: productInfo.Product_id, OrderID: purchasehistory.Order_id}] = product{Product_Name: productInfo.Product_Name, Product_Description: productInfo.Product_Description}
-					// for key, value := range m {
-					// 	fmt.Fprintf(w, "Product ID: %d Order ID: %d Quantity: %s Price: %s", key.ProductID, key.OrderID, value.Product_Name, value.Product_Description)
-					// }
-
-					// OLD COMPOSITE KEY CODE NO USE
-					// var orderProductMap = make(map[int]map[int]product)
-					// orderProductMap[purchasehistory.Order_id] = make(map[int]product)
-					// orderProductMap[purchasehistory.Order_id][purchasehistory.Product_id] = product{Product_Name: productInfo.Product_Name, Product_Description: productInfo.Product_Description}
-					// fmt.Println(orderProductMap)
-					// fmt.Fprintln(w, "Status OK")
-					// output, err := json.Marshal(orderProductMap)
-					// if err != nil {
-					// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-					// 	return
-					// }
-					// w.Header().Set("Content-Type", "application/json")
-					// w.Write(output)
-					//w.WriteHeader(http.StatusAccepted)
-				} //fmt.Fprintf(w, string(output))
+				}
 
 			}
+		} else {
+			//Read
+			ExodiaTheForbidden := os.Getenv("S1020")
+			BodyOfExodia := os.Getenv("S8584")
+			ArmsOfExodia := os.Getenv("S1090")
+			LegsOfExodia := os.Getenv("S1019")
+			///Calling of database
+			db, err := sql.Open("mysql", ExodiaTheForbidden+":"+BodyOfExodia+"@tcp("+ArmsOfExodia+")/"+LegsOfExodia)
 
+			// Error handling
+			if err != nil {
+				fmt.Println("Error in connecting to database")
+				http.Error(w, err.Error(), http.StatusBadRequest)
+			}
+			defer db.Close()
+
+			var purchasehi []History
+			//Checking for value in database
+			result, err := db.Query("select * from purchasehistory")
+			if err != nil {
+				fmt.Println("Error with getting data from database")
+				http.Error(w, err.Error(), http.StatusBadRequest)
+
+			} else {
+				for result.Next() {
+
+					var purchasehistory History
+					//Checking for database items
+					err = result.Scan(&purchasehistory.Order_id, &purchasehistory.User_id, &purchasehistory.Final_price, &purchasehistory.Quantity, &purchasehistory.Product_id, &purchasehistory.ShipStatus, &purchasehistory.ShipLocation)
+					if err != nil {
+						fmt.Printf("No purchase history available")
+						http.Error(w, err.Error(), http.StatusBadRequest)
+						w.WriteHeader(http.StatusBadRequest)
+						fmt.Fprintf(w, ("Invalid table in database"))
+
+					} else {
+						//Print out database items
+						purchasehi = append(purchasehi, purchasehistory)
+
+					}
+					output, _ := json.Marshal(purchasehi)
+					w.WriteHeader(http.StatusAccepted)
+					fmt.Fprintf(w, string(output))
+				}
+
+			}
 		}
 
 	}
