@@ -64,10 +64,10 @@ func main() {
 }
 
 func getAllPurchase(w http.ResponseWriter, r *http.Request) {
-	//var products product        //WK
-	//var purchasehistory History //B
-	//var shoppingcart shopping_cart_items //LC
-	//var status Status                    //H
+	header := w.Header()
+	header.Add("Access-Control-Allow-Origin", "*")
+	header.Add("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
+	header.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 
 	if r.Method == "GET" {
 		querystringmap := r.URL.Query()
@@ -174,6 +174,10 @@ func getAllPurchase(w http.ResponseWriter, r *http.Request) {
 }
 
 func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
+	header := w.Header()
+	header.Add("Access-Control-Allow-Origin", "*")
+	header.Add("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
+	header.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 
 	if r.Method == "POST" {
 		var purchasehistory History //B
@@ -207,12 +211,13 @@ func updatePurchaseHistory(w http.ResponseWriter, r *http.Request) {
 }
 
 func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
-	//var orderProductMap = make(map[int][]int)
-	//var productInfo product     //WK
-	//var userInfo UserID         //DE
 	//https://buyee-delivery-qqglc24h2a-as.a.run.app //H Delivery
 	//https://buyee-discount-qqglc24h2a-as.a.run.app //H Discount
 
+	header := w.Header()
+	header.Add("Access-Control-Allow-Origin", "*")
+	header.Add("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
+	header.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 	querystringmap := r.URL.Query()
 	productID := querystringmap.Get("ProductID")
 	if r.Method == "GET" {
