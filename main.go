@@ -301,9 +301,7 @@ func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 					} else {
 						//Print out database items
 						purchasehi = append(purchasehi, purchasehistory)
-
 					}
-
 				}
 				output, _ := json.Marshal(purchasehi)
 				w.WriteHeader(http.StatusAccepted)
