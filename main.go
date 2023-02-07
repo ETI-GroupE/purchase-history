@@ -64,10 +64,10 @@ func main() {
 }
 
 func getAllPurchase(w http.ResponseWriter, r *http.Request) {
-	// header := w.Header()
-	// header.Add("Access-Control-Allow-Origin", "*")
-	// header.Add("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
-	// header.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+	header := w.Header()
+	header.Add("Access-Control-Allow-Origin", "*")
+	header.Add("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
+	header.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 
 	if r.Method == "GET" {
 		querystringmap := r.URL.Query()
