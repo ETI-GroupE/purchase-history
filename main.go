@@ -256,10 +256,11 @@ func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 						purchasehi = append(purchasehi, purchasehistory)
 
 					}
-					output, _ := json.Marshal(purchasehi)
-					w.WriteHeader(http.StatusAccepted)
-					fmt.Fprintf(w, string(output))
+
 				}
+				output, _ := json.Marshal(purchasehi)
+				w.WriteHeader(http.StatusAccepted)
+				fmt.Fprintf(w, string(output))
 
 			}
 		} else {
@@ -302,11 +303,11 @@ func viewAllBusinessPurchase(w http.ResponseWriter, r *http.Request) {
 						purchasehi = append(purchasehi, purchasehistory)
 
 					}
-					output, _ := json.Marshal(purchasehi)
-					w.WriteHeader(http.StatusAccepted)
-					fmt.Fprintf(w, string(output))
-				}
 
+				}
+				output, _ := json.Marshal(purchasehi)
+				w.WriteHeader(http.StatusAccepted)
+				fmt.Fprintf(w, string(output))
 			}
 		}
 
